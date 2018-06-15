@@ -23,15 +23,17 @@ const registKeybind = keydownCallback => {
   });
 };
 
+let _pkgname = '';
+
 const run = () => {
   if (document.getElementById('readme') === null) {
     return;
   }
 
   const pkgname = getPkgname();
-
   for (const span of Array.from(document.querySelectorAll('span'))) {
-    if (span.innerText === `npm i ${pkgname}`) {
+    if (span.innerText === `npm i ${pkgname}` || /^yarn\sadd(?:-D)?\s.+$/.test(span.innerText)) {
+      _pkgname = pkgname;
       span.innerText = `yarn add ${pkgname}`;
       registKeybind(
         flag => {
@@ -58,8 +60,15 @@ chrome.extension.sendMessage({}, function(response) {
 
       const mo = new MutationObserver(mutations => {
         mutationLoop: for (const mutation of mutations) {
+          // pkgページからpkgページ
+          if (mutation.target.id === 'readme') {
+            setTimeout(run, 1000);
+            break;
+          }
+
+          // 検索リストからpkgページ
           for (const node of Array.from(mutation.addedNodes)) {
-            if (node.id === 'top') {
+            if (node.id === 'top' || node.id === 'readme') {
               run();
               break mutationLoop;
             }
