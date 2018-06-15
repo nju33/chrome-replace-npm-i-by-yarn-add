@@ -1,4 +1,10 @@
-const getPkgname = () => location.href.match(/[^/][\w-]+$/)[0];
+const getPkgname = () => {
+  if (/@/.test(location.href)) {
+    return `@${location.href.match(/(?:[\w-/]+){1}$/)[0]}`;
+  }
+
+  return location.href.match(/[^/][\w-]+$/)[0];
+}
 
 const registKeybind = keydownCallback => {
   let keydown = false;
