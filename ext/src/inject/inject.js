@@ -37,7 +37,7 @@ const run = () => {
       span.innerText = `yarn add ${pkgname}`;
       registKeybind(
         flag => {
-          if (flag === 'D') {
+          if (/D|P|O/.test(flag)) {
             span.innerText = `yarn add -${flag} ${pkgname}`;
           } else if (flag === 'S') {
             span.innerText = `yarn add ${pkgname}`;
