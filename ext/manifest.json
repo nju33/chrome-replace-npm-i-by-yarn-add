@@ -19,12 +19,12 @@
     "default_title": "Replace 'npm i' by 'yarn add'"
   },
   "permissions": [
-    "https://www.npmjs.com/package/*"
+    "https://www.npmjs.com/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://www.npmjs.com/package/*"
+        "https://www.npmjs.com/*"
       ],
       "js": [
         "src/inject/inject.js"

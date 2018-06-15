@@ -1,6 +1,6 @@
 const getPkgname = () => location.href.match(/[^/][\w-]+$/)[0];
 
-const registKeybind = (keydownCallback, keyupCallback) => {
+const registKeybind = keydownCallback => {
   let keydown = false;
 
   document.addEventListener('keydown', ev => {
@@ -13,12 +13,15 @@ const registKeybind = (keydownCallback, keyupCallback) => {
   });
 
   document.addEventListener('keyup', ev => {
-    keyupCallback();
     keydown = false;
   });
 };
 
 const run = () => {
+  if (document.getElementById('readme') === null) {
+    return;
+  }
+
   const pkgname = getPkgname();
 
   for (const span of Array.from(document.querySelectorAll('span'))) {
@@ -26,10 +29,11 @@ const run = () => {
       span.innerText = `yarn add ${pkgname}`;
       registKeybind(
         flag => {
-          span.innerText = `yarn add -${flag} ${pkgname}`;
-        },
-        () => {
-          span.innerText = `yarn add ${pkgname}`;
+          if (flag === 'D') {
+            span.innerText = `yarn add -${flag} ${pkgname}`;
+          } else if (flag === 'S') {
+            span.innerText = `yarn add ${pkgname}`;
+          }
         }
       );
     }
@@ -45,6 +49,27 @@ chrome.extension.sendMessage({}, function(response) {
       // console.log('Hello. This message was sent from scripts/inject.js');
       // ----------------------------------------------------------
       run();
+
+      const mo = new MutationObserver(mutations => {
+        mutationLoop: for (const mutation of mutations) {
+          for (const node of Array.from(mutation.addedNodes)) {
+            if (node.id === 'top') {
+              run();
+              break mutationLoop;
+            }
+          }
+        }
+      })
+
+      mo.observe(
+        document.getElementById('app'),
+        {
+          attributes: false,
+          characterData: false,
+          childList: true,
+          subtree: true
+        }
+      );
     }
   }, 10);
 });
